@@ -1,11 +1,7 @@
-import axios from 'axios'
 
 export default class YoutubeApi {
-  constructor() {
-    this.httpClient = axios.create({
-      baseURL: 'https://youtube.googleapis.com/youtube/v3',
-      params: { key: process.env.REACT_APP_YOUTUBE_API_KEY }
-    })
+  constructor(apiClient) {
+    this.apiClient = apiClient;
   }
 
   async search(keyword) {
@@ -13,27 +9,24 @@ export default class YoutubeApi {
   }
 
   async #searchByKeyword(keyword) {
-    return this.httpClient
-      .get(`search`, {
-        params: {
-          part: 'snippet',
-          maxResults: 25,
-          type: 'video',
-          q: keyword
-        }
-      }).then((res) => res.data.items)
+    return this.apiClient.search({
+      params: {
+        part: 'snippet',
+        maxResults: 25,
+        type: 'video',
+        q: keyword
+      }
+    }).then((res) => res.data.items)
       .then((items) => items.map((item) => ({ ...item, id: item.id.videoId })))
   }
 
   async #mostPopular() {
-    return this.httpClient
-      .get(`videos`, {
-        params: {
-          part: 'snippet',
-          maxResults: 25,
-          chart: 'mostPopular'
-        }
-      }).then((res) => res.data.items)
+    return this.apiClient.videos({
+      params: {
+        part: 'snippet',
+        maxResults: 25,
+        chart: 'mostPopular'
+      }
+    }).then((res) => res.data.items)
   }
-
 }
